@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Headway Recommender</title>
+<style>
+:root{--bg:#eef1f4;--card:#fff;--tx:#101b2a;--mu:#5b6877;--bd:#d6dce3;--sh:#d98f00;--le:#0f8b8d;--ke:#2e9e5b;--ac:#101b2a;--ac-tx:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c131c;--card:#151f2b;--tx:#e8edf3;--mu:#93a1b1;--bd:#263446;--sh:#f2b01e;--le:#38c1c3;--ke:#4cc47f;--ac:#e8edf3;--ac-tx:#101b2a}}
+:root[data-theme="dark"]{--bg:#0c131c;--card:#151f2b;--tx:#e8edf3;--mu:#93a1b1;--bd:#263446;--sh:#f2b01e;--le:#38c1c3;--ke:#4cc47f;--ac:#e8edf3;--ac-tx:#101b2a}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:640px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:28px;line-height:1.15;margin:0 0 6px;letter-spacing:-.01em}
+h2{font-size:18px;margin:0 0 12px}
+.sub{color:var(--mu);margin:0 0 20px;max-width:46ch}
+section{margin-bottom:22px}
+.panel{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px}
+label{display:block;font-size:13px;color:var(--mu);margin-bottom:4px}
+input,select,button{font:inherit;color:var(--tx)}
+input,select{width:100%;min-height:44px;padding:8px 10px;background:var(--bg);border:1px solid var(--bd);border-radius:8px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.row{margin-bottom:10px}
+.pre{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.pre button,.add{min-height:40px;padding:6px 12px;background:transparent;border:1px solid var(--bd);border-radius:20px;cursor:pointer}
+.add{width:100%;border-style:dashed;border-radius:8px;min-height:44px}
+.ev{border:1px solid var(--bd);border-radius:8px;padding:10px;margin-bottom:10px;background:var(--bg)}
+.ev .x{float:right;border:0;background:none;color:var(--mu);min-height:32px;cursor:pointer}
+.sum{background:var(--ac);color:var(--ac-tx);border-radius:10px;padding:14px;margin-bottom:12px}
+.sum b{font-size:20px;display:block}
+.sum p{margin:6px 0 0;font-size:14px;opacity:.9}
+.band{background:var(--card);border:1px solid var(--bd);border-left:6px solid var(--ke);border-radius:10px;padding:14px;margin-bottom:12px}
+.band.shorten{border-left-color:var(--sh)}.band.lengthen{border-left-color:var(--le)}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.top span{color:var(--mu);font-size:14px;margin-left:6px}
+.chip{font-size:13px;font-weight:600;color:var(--ke)}
+.shorten .chip{color:var(--sh)}.lengthen .chip{color:var(--le)}
+.hw{display:flex;align-items:baseline;gap:10px;margin:8px 0 4px;font-variant-numeric:tabular-nums}
+.hw .old{color:var(--mu);text-decoration:line-through;font-size:18px}
+.hw .new{font-size:38px;font-weight:700;line-height:1}
+.hw small{font-size:15px;font-weight:500;color:var(--mu)}
+.strip{position:relative;height:14px;margin:4px 0}
+.strip::before{content:"";position:absolute;left:0;right:0;top:6px;border-top:2px solid var(--bd)}
+.strip i{position:absolute;top:1px;width:5px;height:12px;border-radius:2px;background:var(--mu);opacity:.55}
+.strip.n i{background:var(--ke);opacity:1}.shorten .strip.n i{background:var(--sh)}.lengthen .strip.n i{background:var(--le)}
+.cap{font-size:12px;color:var(--mu);margin:0 0 6px}
+.bar{position:relative;height:8px;background:var(--bd);border-radius:4px;margin:10px 0 4px}
+.bar b{display:block;height:100%;border-radius:4px;background:var(--ke)}
+.shorten .bar b{background:var(--sh)}.lengthen .bar b{background:var(--le)}
+.bar u{position:absolute;left:50%;top:-3px;bottom:-3px;border-left:2px solid var(--tx)}
+.act{font-weight:600;margin:10px 0 4px}
+.why{margin:0;color:var(--mu);font-size:15px}
+.note{border:1px solid var(--sh);border-radius:8px;padding:10px;margin-bottom:12px;font-size:14px}
+.stat{font-size:13px;color:var(--mu);margin:-10px 0 18px;max-width:52ch}
+.imp{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.imp div{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px}
+.imp b{display:block;font-size:19px;font-variant-numeric:tabular-nums}
+.imp span{font-size:12px;color:var(--mu)}
+.imp p{grid-column:1/-1;margin:0}
+footer{color:var(--mu);font-size:13px}
+</style></head><body><main>
+<h1>No day is an average day</h1>
+<p class="sub">Enter tomorrow's calendar. Get a headway for each time band, with the reason in plain words.</p>
+<p class="stat" id="stat"></p>
+
+<section class="panel">
+<h2>Tomorrow</h2>
+<div class="g2 row"><div><label for="dt">Date</label><input type="date" id="dt"></div>
+<div><label for="hol">Holiday</label><select id="hol"><option value="0">Normal day</option><option value="1">Public holiday</option></select></div></div>
+<div class="row"><label for="wx">Weather forecast</label><select id="wx"><option value="clear">Clear</option><option value="hot">Very hot (40°C+)</option><option value="light">Light rain</option><option value="heavy">Heavy rain</option></select></div>
+<div class="pre" id="pre"></div>
+</section>
+
+<section class="panel">
+<h2>Events</h2>
+<div id="events"></div>
+<button class="add" id="add">Add event</button>
+</section>
+
+<section>
+<h2>Recommended headways</h2>
+<div id="sum"></div><div id="imp" class="imp"></div><div id="notes"></div><div id="out"></div>
+</section>
+<footer>Planned headways assume a typical weekday: 10 min off-peak, 6 min peak. Shortest allowed gap is 3 min. The demand model is trained on synthetic data until real ridership is supplied. With no forecast feed, weather and events are entered by hand.</footer>
+</main>
+<script>/*MODEL*/window.MODEL={"source": "synthetic", "rows": 1825, "features": ["off", "light", "heavy", "hot", "ev_in", "ev_out"], "intercept": [55.67, 100.32, 39.93, 100.36, 44.57], "coef": [[-36.226, 3.62, 5.45, -0.311, 0.0, 0.0], [-61.642, 6.167, 16.674, -1.128, 0.807, 0.0], [20.189, 3.692, 5.195, 3.578, 0.815, 0.947], [-35.543, 7.134, 16.366, 1.09, 0.955, 1.233], [10.863, 4.172, 7.906, 0.861, 0.944, 1.328]], "r2": 0.979, "mae": 2.9};/*END*/</script>
+<script>
+const $=id=>document.getElementById(id);
+const BANDS=[[6,8,'Early morning'],[8,11,'Morning peak'],[11,16,'Midday'],[16,20,'Evening peak'],[20,24,'Late evening']];
+const TYP=[55,100,40,100,45],OFF=[20,40,60,65,55],PLAN=[10,6,10,6,10],SIZE={small:10,medium:25,large:45,mega:70};
+const PRE={
+ cricket:{d:5,wx:'heavy',hol:0,ev:[{n:'Cricket match, Narendra Modi Stadium',t:'cricket',z:'mega',s:'19:00',e:'22:30'}]},
+ exam:{d:2,wx:'light',hol:0,ev:[{n:'University exams',t:'exam',z:'large',s:'10:00',e:'13:00'}]},
+ garba:{d:6,wx:'clear',hol:0,ev:[{n:'Garba night',t:'festival',z:'large',s:'19:30',e:'23:30'}]}};
+const PN={cricket:'Cricket night in the rain',exam:'Exam day',garba:'Festival night'};
+let ev=[];
+const t2h=s=>{const[a,b]=s.split(':').map(Number);return a+b/60};
+const fmt=h=>{h=((h%24)+24)%24;let a=Math.floor(h),m=Math.round((h-a)*60);if(m==60){a++;m=0}return String(a).padStart(2,'0')+':'+String(m).padStart(2,'0')};
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+
+function wins(e){
+ const s=t2h(e.s);let en=t2h(e.e);if(en<=s)en+=24;
+ if(e.t=='festival')return[{a:s,b:en,w:.7,k:'in',en},{a:en,b:en+1.5,w:.3,k:'out',en}];
+ if(e.t=='exam')return[{a:s-1.5,b:s,w:.5,k:'in',en},{a:en,b:en+1.5,w:.5,k:'out',en}];
+ return[{a:s-3,b:s,w:.4,k:'in',en},{a:en,b:en+1.5,w:.6,k:'out',en}];
+}
+function evText(e,w){
+ const n=(e.n||'').trim()||'the event';
+ if(w.k=='in')return e.t=='festival'?`crowds at ${n}`:e.t=='exam'?`students heading to ${n} (starts ${e.s})`:`people heading to ${n} (starts ${e.s})`;
+ return e.t=='exam'?`${n} finishes at ${e.e} and everyone leaves together`:`${n} ends around ${e.e} and the crowd heads home`;
+}
+const WXT={heavy:'heavy rain pushes riders off roads and onto the metro',light:'light rain nudges more people onto the metro',hot:'the afternoon heat sends people to air-conditioned trains'};
+const HRS=[2,3,5,4,4];
+const DEF={source:'built-in rules',intercept:TYP.slice(),coef:TYP.map((t,i)=>[OFF[i]-t,.08*t,(i==1||i==3?.18:.12)*t,i==2?.06*t:0,1,1])};
+function calc(){
+ const M=window.MODEL||DEF,d=new Date($('dt').value+'T00:00'),wk=d.getDay()==0||d.getDay()==6,hol=$('hol').value=='1',off=wk||hol,wx=$('wx').value;
+ const dl=hol?'public holiday':'weekend';
+ return BANDS.map((b,i)=>{
+  const c=M.coef[i],why=[];let dem=M.intercept[i];
+  if(off){dem+=c[0];if(Math.abs(c[0])>=5)why.push({p:c[0],t:c[0]<0?`${dl} commuting is lighter than the weekday plan assumes`:`${dl} leisure trips run higher than a normal weekday at this hour`})}
+  const wi={light:1,heavy:2,hot:3}[wx];
+  if(wi){dem+=c[wi];if(c[wi]>=3)why.push({p:c[wi],t:WXT[wx]})}
+  ev.forEach(e=>wins(e).forEach(w=>{
+   const ov=Math.max(0,Math.min(w.b,b[1])-Math.max(w.a,b[0]));
+   if(ov>0){const p=c[w.k=='in'?4:5]*SIZE[e.z]*w.w*ov/(w.b-w.a);dem+=p;why.push({p,t:evText(e,w)})}
+  }));
+  dem=Math.max(dem,5);
+  const r=dem/M.intercept[i],pl=PLAN[i];let h=pl;
+  if(r>=1.1||r<=.75)h=Math.round(Math.min(Math.max(pl/r,3),pl*1.6)*2)/2;
+  why.sort((x,y)=>Math.abs(y.p)-Math.abs(x.p));
+  return{b,i,r,h,pl,d:dem,why:why.filter(x=>Math.abs(x.p)>=3).slice(0,2).map(x=>x.t),st:h<pl?'shorten':h>pl?'lengthen':'keep'};
+ });
+}
+function impact(res){let tp=0,tr=0,wp=0,wr=0,den=0,cp=0,cr=0;res.forEach(x=>{const H=HRS[x.i],w=x.d*H;tp+=H*60/x.pl;tr+=H*60/x.h;den+=w;wp+=w*x.pl/2;wr+=w*x.h/2;if(x.r>1.15)cp++;if(x.r*x.h/x.pl>1.15)cr++});return{tp:Math.round(tp),tr:Math.round(tr),wp:wp/den,wr:wr/den,cp,cr}}
+function stat(){const M=window.MODEL;$('stat').textContent=(navigator.onLine?'Online. ':'Offline. ')+'Everything here runs on this device. '+(M?`Demand model learned from ${M.rows.toLocaleString()} ${M.source} records; typical error ${M.mae} points on days it had not seen.`:'Using built-in rules because the learned model is missing.')}
+function save(){try{localStorage.setItem('hw1',JSON.stringify({dt:$('dt').value,hol:$('hol').value,wx:$('wx').value,ev}))}catch(e){}}
+
+function strip(h,c){let s='';for(let t=0;t<60;t+=h)s+=`<i style="left:${(t/60*100).toFixed(1)}%"></i>`;return`<div class="strip ${c}">${s}</div>`}
+
+function render(){
+ const res=calc(),ch=res.filter(x=>x.st!='keep');
+ $('sum').innerHTML=`<div class="sum"><b>${ch.length?`${ch.length} of 5 time bands need a change`:'The planned timetable fits tomorrow'}</b><p>${ch.length?ch.map(x=>`${fmt(x.b[0])}–${fmt(x.b[1]%24)}: ${x.st=='shorten'?'shorter':'longer'} gaps`).join('. ')+'.':'Nothing on the calendar moves demand enough to justify a change.'}</p></div>`;
+ const im=impact(res);
+ $('imp').innerHTML=`<div><b>${im.tp} → ${im.tr}</b><span>Trains in the day</span></div><div><b>${im.wp.toFixed(1)} → ${im.wr.toFixed(1)} min</b><span>Average wait</span></div><div><b>${im.cp} → ${im.cr}</b><span>Bands over capacity</span></div><p class="cap">Plan → recommended. Over capacity means demand is more than 15% above what the planned trains carry.</p>`;
+ const notes=[];
+ ev.forEach(e=>wins(e).forEach(w=>{if(w.k=='out'&&w.b>24.01&&e.n!==undefined&&!notes.some(n=>n.includes(e.n)))notes.push(`Crowd from ${(e.n||'').trim()||'the event'} is still leaving after midnight. Consider a late special service.`)}));
+ $('notes').innerHTML=notes.map(n=>`<div class="note">${n}</div>`).join('');
+ $('out').innerHTML=res.map(x=>{
+  const pc=Math.round((x.r-1)*100),dir=pc>=0?'+':'−';
+  const act=x.st=='shorten'?`Run a train every ${x.h} min instead of ${x.pl}. That adds about ${(k=>k+' train'+(k==1?'':'s'))(Math.round(60/x.h-60/x.pl))} an hour.`
+   :x.st=='lengthen'?`Stretch to a train every ${x.h} min instead of ${x.pl}. That frees about ${(k=>k+' trip'+(k==1?'':'s'))(Math.round(60/x.pl-60/x.h))} an hour with little crowding risk.`
+   :`Keep the planned ${x.pl}-minute gap. Demand is close to what the plan assumes.`;
+  const why=x.why.length?`Expect ${Math.abs(pc)}% ${pc>=0?'more':'fewer'} riders than planned: ${x.why.join(', and ')}.`:'Nothing on the calendar moves demand much in this band.';
+  return`<article class="band ${x.st}"><div class="top"><div><b>${fmt(x.b[0])}–${fmt(x.b[1]%24)}</b><span>${x.b[2]}</span></div><span class="chip">${x.st=='keep'?'Keep':cap(x.st)}</span></div>
+  <div class="hw">${x.st!='keep'?`<span class="old">${x.pl} min</span>`:''}<span class="new">${x.h}<small> min</small></span></div>
+  <p class="cap">Trains in one hour: planned, then recommended</p>${strip(x.pl,'')}${strip(x.h,'n')}
+  <div class="bar"><b style="width:${Math.min(x.r,2)/2*100}%"></b><u></u></div><p class="cap">Demand ${dir}${Math.abs(pc)}% against plan (line = planned level)</p>
+  <p class="act">${act}</p><p class="why">${cap(why)}</p></article>`}).join('');
+ save();
+}
+
+function drawEvents(){
+ $('events').innerHTML=ev.length?ev.map((e,i)=>`<div class="ev" data-i="${i}"><button class="x" data-x="${i}" aria-label="Remove event">Remove</button>
+ <div class="row"><label>Event name</label><input data-k="n" value="${(e.n||'').replace(/"/g,'&quot;')}"></div>
+ <div class="g2 row"><div><label>Type</label><select data-k="t">${[['cricket','Cricket match'],['concert','Concert'],['festival','Festival'],['exam','Exam']].map(o=>`<option value="${o[0]}"${e.t==o[0]?' selected':''}>${o[1]}</option>`).join('')}</select></div>
+ <div><label>Expected crowd</label><select data-k="z">${[['small','Under 5,000'],['medium','5,000–20,000'],['large','20,000–50,000'],['mega','Over 50,000']].map(o=>`<option value="${o[0]}"${e.z==o[0]?' selected':''}>${o[1]}</option>`).join('')}</select></div></div>
+ <div class="g2"><div><label>Starts</label><input type="time" data-k="s" value="${e.s}"></div><div><label>Ends</label><input type="time" data-k="e" value="${e.e}"></div></div></div>`).join(''):'<p class="cap">No events yet. Add one, or load an example above.</p>';
+}
+function nextDow(w){const t=new Date();do{t.setDate(t.getDate()+1)}while(t.getDay()!=w);return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0')}
+function load(k){const p=PRE[k];$('dt').value=nextDow(p.d);$('wx').value=p.wx;$('hol').value=p.hol;ev=p.ev.map(x=>({...x}));drawEvents();render()}
+$('pre').innerHTML=Object.keys(PRE).map(k=>`<button data-p="${k}">${PN[k]}</button>`).join('')+'<button data-p="">Clear</button>';
+$('pre').onclick=e=>{const k=e.target.dataset.p;if(k===undefined)return;if(k)load(k);else{ev=[];$('wx').value='clear';$('hol').value='0';drawEvents();render()}};
+$('add').onclick=()=>{ev.push({n:'',t:'concert',z:'medium',s:'19:00',e:'22:00'});drawEvents();render()};
+$('events').oninput=$('events').onchange=e=>{const r=e.target.closest('.ev');if(!r||!e.target.dataset.k)return;ev[+r.dataset.i][e.target.dataset.k]=e.target.value;render()};
+$('events').onclick=e=>{if(e.target.dataset.x!==undefined){ev.splice(+e.target.dataset.x,1);drawEvents();render()}};
+['dt','hol','wx'].forEach(id=>$(id).onchange=render);
+const t=new Date(Date.now()+864e5);$('dt').value=t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');
+stat();addEventListener('online',stat);addEventListener('offline',stat);
+(()=>{let q=null;try{q=JSON.parse(localStorage.getItem('hw1'))}catch(e){}
+ if(q&&Array.isArray(q.ev)){ev=q.ev;$('hol').value=q.hol;$('wx').value=q.wx;if(q.dt>=$('dt').value)$('dt').value=q.dt;drawEvents();render()}else load('cricket')})();
+</script></body></html>
