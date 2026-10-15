@@ -68,10 +68,6 @@ To use real data, make a CSV with the columns listed at the top of `train_model.
 | `test_recommender.py` | Unit tests |
 | `PITCH.md` | Pitch, PPP model, demo script and likely judge questions |
 
-## Built before the ride
-
-Everything in this repository was prepared before the ride, with help from Claude (an AI assistant): the web app, the Python engine, the training script, the synthetic dataset, the tests and the docs.
-
 ## Limits and next steps
 
 - The model is trained on synthetic data. Next: calibrate on the operator's ticketing and passenger-count data, in shadow mode first.
